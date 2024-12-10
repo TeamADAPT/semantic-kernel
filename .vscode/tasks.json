@@ -1,14 +1,14 @@
 {
   "version": "2.0.0",
   "tasks": [
-    // *****************************
-    // Contributing (dotnet) - Setup
-    // *****************************
     {
       "label": "setup (contributing-R#)",
       "detail": "",
       "group": "build",
-      "dependsOn": ["new tool-manifest", "# Setup"],
+      "dependsOn": [
+        "new tool-manifest",
+        "# Setup"
+      ],
       "dependsOrder": "sequence"
     },
     {
@@ -16,7 +16,10 @@
       "detail": "Install ReSharper Global Tools",
       "command": "dotnet",
       "type": "process",
-      "args": ["new", "tool-manifest"],
+      "args": [
+        "new",
+        "tool-manifest"
+      ],
       "options": {
         "cwd": "${workspaceFolder}/dotnet"
       }
@@ -36,10 +39,7 @@
         "cwd": "${workspaceFolder}/dotnet"
       }
     },
-    // Code Formatting
     {
-      // Requires 'R# Install' to be run first
-      // r# inspect - dotnet jb inspectcode -o="inspectcode.log" --no-build -s=".\SK-dotnet.sln.DotSettings" -f=Text ".\SK-dotnet.sln"
       "label": "format-check (contributing-R#)",
       "command": "dotnet",
       "type": "process",
@@ -58,7 +58,6 @@
       }
     },
     {
-      // r# cleanup - dotnet jb cleanupcode --no-build -p="Built-in: Reformat Code" -s=SK-dotnet.sln.DotSettings SK-dotnet.sln
       "label": "format (contributing-R#)",
       "command": "dotnet",
       "type": "process",
@@ -88,10 +87,6 @@
       ],
       "dependsOrder": "sequence"
     },
-    // ***************
-    // Kernel (dotnet)
-    // ***************
-    // Build
     {
       "label": "build (Semantic-Kernel)",
       "command": "dotnet",
@@ -110,12 +105,14 @@
         "group": "PR-Validate"
       }
     },
-    // Test
     {
       "label": "test (Semantic-Kernel)",
       "command": "dotnet",
       "type": "process",
-      "args": ["test", "SemanticKernel.UnitTests.csproj"],
+      "args": [
+        "test",
+        "SemanticKernel.UnitTests.csproj"
+      ],
       "problemMatcher": "$msCompile",
       "group": "test",
       "presentation": {
@@ -222,10 +219,6 @@
         "cwd": "${workspaceFolder}/dotnet/src/IntegrationTests/"
       }
     },
-    // ****************
-    // Samples (dotnet)
-    // ****************
-    // Kernel Syntax Examples
     {
       "label": "build (Concepts)",
       "command": "dotnet",
@@ -292,17 +285,97 @@
       "logLevel": "debug",
       "appPort": 5000,
       "httpPort": 3500,
-      "dependsOn":["build (ProcessWithDapr)"]
+      "dependsOn": [
+        "build (ProcessWithDapr)"
+      ]
     },
     {
       "label": "dapr-down",
       "type": "shell",
-      "command": ["dapr stop --app-id processwithdapr"],
+      "command": [
+        "dapr stop --app-id processwithdapr"
+      ],
       "presentation": {
         "clear": true,
         "close": true,
         "reveal": "never"
       }
+    },
+    {
+      "label": "clean (functions)",
+      "command": "dotnet",
+      "args": [
+        "clean",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "type": "process",
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/dotnet/samples/Demos/CreateChatGptPlugin/MathPlugin/azure-function"
+      }
+    },
+    {
+      "label": "build (functions)",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "type": "process",
+      "dependsOn": "clean (functions)",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/dotnet/samples/Demos/CreateChatGptPlugin/MathPlugin/azure-function"
+      }
+    },
+    {
+      "label": "clean release (functions)",
+      "command": "dotnet",
+      "args": [
+        "clean",
+        "--configuration",
+        "Release",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "type": "process",
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/dotnet/samples/Demos/CreateChatGptPlugin/MathPlugin/azure-function"
+      }
+    },
+    {
+      "label": "publish (functions)",
+      "command": "dotnet",
+      "args": [
+        "publish",
+        "--configuration",
+        "Release",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "type": "process",
+      "dependsOn": "clean release (functions)",
+      "problemMatcher": "$msCompile",
+      "options": {
+        "cwd": "${workspaceFolder}/dotnet/samples/Demos/CreateChatGptPlugin/MathPlugin/azure-function"
+      }
+    },
+    {
+      "type": "func",
+      "dependsOn": "build (functions)",
+      "options": {
+        "cwd": "${workspaceFolder}/dotnet/samples/Demos/CreateChatGptPlugin/MathPlugin/azure-function/bin/Debug/net8.0"
+      },
+      "command": "host start",
+      "isBackground": true,
+      "problemMatcher": "$func-dotnet-watch"
     }
   ],
   "inputs": [

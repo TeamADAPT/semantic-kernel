@@ -1,0 +1,81 @@
+{
+    "name": "research_workflow",
+    "description": "A workflow for processing and analyzing research text",
+    "version": "1.0.0",
+    "metadata": {
+        "author": "Semantic Kernel Team",
+        "created": "2023-11-14",
+        "tags": ["research", "analysis", "summarization"]
+    },
+    "steps": [
+        {
+            "name": "extract_key_points",
+            "description": "Extract key points from the research text",
+            "skill": "SummarizationSkill",
+            "function": "extract_key_points",
+            "parameters": {
+                "num_points": 5
+            },
+            "continue_if": {
+                "success": true
+            }
+        },
+        {
+            "name": "generate_summary",
+            "description": "Generate a comprehensive summary",
+            "skill": "SummarizationSkill",
+            "function": "summarize_text",
+            "parameters": {
+                "max_length": 500
+            },
+            "continue_if": {
+                "success": true
+            }
+        },
+        {
+            "name": "create_abstract",
+            "description": "Create an academic abstract",
+            "skill": "SummarizationSkill",
+            "function": "create_abstract",
+            "parameters": {
+                "target_audience": "academic"
+            }
+        },
+        {
+            "name": "analyze_sentiment",
+            "description": "Analyze the sentiment of the text",
+            "skill": "SummarizationSkill",
+            "function": "analyze_sentiment",
+            "parameters": {}
+        },
+        {
+            "name": "store_results",
+            "description": "Store the analysis results in memory",
+            "skill": "MemorySkill",
+            "function": "store_memory",
+            "parameters": {
+                "tags": ["research", "analysis"]
+            }
+        }
+    ],
+    "error_handling": {
+        "max_retries": 3,
+        "retry_delay": 1,
+        "continue_on_error": false
+    },
+    "parallel_execution": {
+        "enabled": true,
+        "max_concurrent": 2,
+        "parallel_steps": ["analyze_sentiment", "create_abstract"]
+    },
+    "output_format": {
+        "type": "json",
+        "fields": [
+            "key_points",
+            "summary",
+            "abstract",
+            "sentiment",
+            "memory_id"
+        ]
+    }
+}
